@@ -34,10 +34,7 @@ PanelWindow {
     NetworkStatus { id: networkStatus }
     VolumeControl { id: volumeControl }
 
-    Process { id: nmLauncher;      command: [Config.networkManagerCmd] }
-    Process { id: bluejayLauncher; command: [Config.bluetoothManagerCmd] }
-
-    property bool anyPopupOpen: isFull && (volumePopup.visible || notifCenter.visible || powerMenu.visible || calendarPopup.visible)
+    property bool anyPopupOpen: isFull && (volumePopup.visible || notifCenter.visible || powerMenu.visible || calendarPopup.visible || wifiMenu.visible || bluetoothMenu.visible)
     WlrLayershell.keyboardFocus: anyPopupOpen ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
 
     function closeAllPopups() {
@@ -45,6 +42,8 @@ PanelWindow {
         notifCenter.visible = false;
         powerMenu.visible = false;
         calendarPopup.visible = false;
+        wifiMenu.visible = false;
+        bluetoothMenu.visible = false;
     }
 
     function togglePopup(popup) {
@@ -239,6 +238,7 @@ PanelWindow {
 
         // bluetooth
         Item {
+            id: btRow
             visible: root.isFull
             implicitWidth: btContent.implicitWidth
             implicitHeight: btContent.implicitHeight
@@ -250,7 +250,7 @@ PanelWindow {
 
                 Text {
                     text: Bluetooth.defaultAdapter?.enabled ? "\udb80\udcaf" : "\udb80\udcb2"
-                    color: Bluetooth.defaultAdapter?.enabled ? Config.colBTConnected : Config.colMuted
+                    color: btMouse.containsMouse ? Config.colAccent : (Bluetooth.defaultAdapter?.enabled ? Config.colBTConnected : Config.colMuted)
                     font { family: Config.fontFamily; pixelSize: Config.fontSize; bold: false }
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: Config.animDuration } }
@@ -259,9 +259,10 @@ PanelWindow {
                 Text {
                     visible: Bluetooth.defaultAdapter?.enabled && connectedDeviceName !== ""
                     text: connectedDeviceName
-                    color: Config.colBTConnected
+                    color: btMouse.containsMouse ? Config.colAccent : Config.colBTConnected
                     font { family: Config.fontFamily; pixelSize: Config.fontSize; bold: false }
                     anchors.verticalCenter: parent.verticalCenter
+                    Behavior on color { ColorAnimation { duration: Config.animDurationFast } }
 
                     readonly property string connectedDeviceName: {
                         if (!Bluetooth.defaultAdapter) return "";
@@ -272,9 +273,11 @@ PanelWindow {
             }
 
             MouseArea {
+                id: btMouse
                 anchors.fill: parent
+                hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: { bluejayLauncher.running = false; bluejayLauncher.running = true; }
+                onClicked: root.togglePopup(bluetoothMenu)
             }
         }
 
@@ -292,7 +295,7 @@ PanelWindow {
 
                 Text {
                     text: networkStatus.icon
-                    color: networkStatus.iconColor
+                    color: netMouse.containsMouse ? Config.colAccent : networkStatus.iconColor
                     font { family: Config.fontFamily; pixelSize: Config.fontSize; bold: false }
                     anchors.verticalCenter: parent.verticalCenter
                     Behavior on color { ColorAnimation { duration: Config.animDuration } }
@@ -300,19 +303,19 @@ PanelWindow {
 
                 Text {
                     text: networkStatus.displayText
-                    color: Config.colNetConnected
+                    color: netMouse.containsMouse ? Config.colAccent : Config.colNetConnected
                     font { family: Config.fontFamily; pixelSize: Config.fontSize; bold: false }
                     anchors.verticalCenter: parent.verticalCenter
+                    Behavior on color { ColorAnimation { duration: Config.animDurationFast } }
                 }
             }
 
             MouseArea {
+                id: netMouse
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: networkTooltip.visible = true
-                onExited: networkTooltip.visible = false
-                onClicked: { nmLauncher.running = false; nmLauncher.running = true; }
+                onClicked: root.togglePopup(wifiMenu)
             }
         }
 
@@ -483,60 +486,24 @@ PanelWindow {
         anchor.margins.bottom: 60
     }
 
-    // network tooltip
-    PopupWindow {
-        id: networkTooltip
+    WifiMenu {
+        id: wifiMenu
         visible: false
+        networkStatus: networkStatus
         anchor.item: networkRow
         anchor.edges: Edges.Top
         anchor.gravity: Edges.Top
         anchor.adjustment: PopupAdjustment.Slide
         anchor.margins.bottom: 60
-        color: "transparent"
-        implicitWidth: tooltipContent.implicitWidth + 28
-        implicitHeight: tooltipContent.implicitHeight + 20
+    }
 
-        Rectangle {
-            id: tooltipRect
-            anchors.fill: parent
-            anchors.bottomMargin: 10
-            color: Config.colBg
-            border.width: 1
-            border.color: Config.colBorder
-            radius: Config.popupRadius
-
-            opacity: 0
-            transform: Translate { id: tooltipSlide; y: 8 }
-
-            states: State {
-                name: "open"; when: networkTooltip.visible
-                PropertyChanges { target: tooltipRect; opacity: 1 }
-                PropertyChanges { target: tooltipSlide; y: 0 }
-            }
-            transitions: Transition {
-                ParallelAnimation {
-                    NumberAnimation { property: "opacity"; duration: Config.animDurationFast; easing.type: Easing.OutCubic }
-                    NumberAnimation { property: "y"; duration: Config.animDurationFast; easing.type: Easing.OutCubic }
-                }
-            }
-
-            Column {
-                id: tooltipContent
-                anchors.centerIn: parent
-                spacing: 4
-
-                Text {
-                    text: "Interface: " + networkStatus.interfaceName
-                    color: Config.colFg
-                    font { family: Config.fontFamily; pixelSize: 13 }
-                }
-
-                Text {
-                    text: "WAN: " + (networkStatus.wanAddress || "fetching...")
-                    color: Config.colFg
-                    font { family: Config.fontFamily; pixelSize: 13 }
-                }
-            }
-        }
+    BluetoothMenu {
+        id: bluetoothMenu
+        visible: false
+        anchor.item: btRow
+        anchor.edges: Edges.Top
+        anchor.gravity: Edges.Top
+        anchor.adjustment: PopupAdjustment.Slide
+        anchor.margins.bottom: 60
     }
 }

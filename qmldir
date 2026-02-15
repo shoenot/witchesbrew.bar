@@ -7,3 +7,5 @@ NotificationPopup 1.0 NotificationPopup.qml
 NotificationCenter 1.0 NotificationCenter.qml
 PowerMenu 1.0 PowerMenu.qml
 CalendarPopup 1.0 CalendarPopup.qml
+WifiMenu 1.0 WifiMenu.qml
+BluetoothMenu 1.0 BluetoothMenu.qml

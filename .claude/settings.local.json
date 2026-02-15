@@ -5,7 +5,9 @@
       "WebSearch",
       "WebFetch(domain:quickshell.org)",
       "WebFetch(domain:git.outfoxxed.me)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(nmcli:*)",
+      "Bash(curl:*)"
     ]
   }
 }

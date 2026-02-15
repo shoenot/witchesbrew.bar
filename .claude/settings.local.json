@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:quickshell.outfoxxed.me)",
+      "WebSearch",
+      "WebFetch(domain:quickshell.org)",
+      "WebFetch(domain:git.outfoxxed.me)",
+      "Bash(ls:*)"
+    ]
+  }
+}

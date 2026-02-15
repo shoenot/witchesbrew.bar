@@ -1,0 +1,9 @@
+singleton Config 1.0 Config.qml
+WitchesBrewBar 1.0 WitchesBrewBar.qml
+NetworkStatus 1.0 NetworkStatus.qml
+VolumeControl 1.0 VolumeControl.qml
+VolumePopup 1.0 VolumePopup.qml
+NotificationPopup 1.0 NotificationPopup.qml
+NotificationCenter 1.0 NotificationCenter.qml
+PowerMenu 1.0 PowerMenu.qml
+CalendarPopup 1.0 CalendarPopup.qml
